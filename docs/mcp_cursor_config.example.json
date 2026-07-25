@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "eco-loop-hvac": {
+      "command": "python",
+      "args": ["-m", "src.mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    }
+  }
+}

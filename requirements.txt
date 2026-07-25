@@ -1,0 +1,11 @@
+openai>=1.40.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+matplotlib>=3.8.0
+numpy>=1.26.0
+streamlit>=1.32.0
+streamlit-autorefresh>=1.0.1
+mcp>=1.2.0
+
+# Not pip-installable here: pyenergyplus ships with the EnergyPlus install.
+# Set ENERGYPLUS_ROOT in .env; energyplus_runner.py adds that path to sys.path.
