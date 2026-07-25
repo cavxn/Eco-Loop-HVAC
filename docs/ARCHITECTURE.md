@@ -76,23 +76,28 @@ to 27°C and expand single-zone writes to all five zones.
 ### Comfort vs energy (how to read the scores)
 
 Primary comfort metric is **occupied-hours** compliance (07–19h within the
-configured band). Measured results: baseline ~100% occupied, AI ~82% occupied,
-with ~14.1% energy saved.
+configured band). Finalized **30-day** PoC result (Jun 15 – Jul 14, Chicago EPW):
 
-Baseline achieves 100% occupied-hours comfort because it holds a fixed
-conservative setpoint with no optimization objective; AI achieves ~82%
-occupied-hours compliance because it trades bounded comfort margin for the
-~14.1% energy reduction — a tradeoff the fixed baseline schedule is
-structurally incapable of making.
+| | Value |
+|--|--|
+| Energy savings | **3.6%** |
+| Occupied-hours comfort (AI) | **66.8%** |
+| All-hours comfort (AI) | **58.2%** |
+| Baseline / AI energy | **1759.3 kWh** → **1696.8 kWh** |
+| Baseline occupied-hours comfort | **87.9%** |
 
-If an **all-hours** in-band figure is shown (dashboard console / caption), it
-always includes intentional overnight setback to ~27°C when unoccupied and is
-not the primary compliance score.
+Baseline achieves 87.9% occupied-hours comfort because it holds a fixed
+conservative setpoint with no optimization objective; the AI agent achieves
+66.8% occupied-hours compliance while reducing energy use by 3.6% over a
+30-day period spanning both mild and peak outdoor conditions — a tradeoff the
+fixed baseline schedule cannot make. All-hours comfort (58.2%) is lower
+because it includes intentional overnight setback to ~27°C during unoccupied
+periods, which is by design.
 
 ## 3. Latency management
 
-- **Agent interval:** `AGENT_CALLBACK_INTERVAL` (default **12**). With Timestep=6
-  (10 simulated minutes), that is roughly every **2 simulated hours**. Calling
+- **Agent interval:** `AGENT_CALLBACK_INTERVAL` (default **24**). With Timestep=6
+  (10 simulated minutes), that is roughly every **4 simulated hours**. Calling
   the LLM every timestep would dominate wall-clock time and burn API quota.
 - **Handle caching:** on first ready callback, `_cache_handles()` resolves variable,
   meter, and actuator handles once (`_got_handles`); later steps only call

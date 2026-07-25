@@ -1,74 +1,12 @@
-============================================================
-AI CLOSED-LOOP RUN
-  IDF      : /Users/cavins/Desktop/Hackathon/eco-loop-building-agents/models/baseline.idf
-  EPW      : /Users/cavins/Desktop/Hackathon/eco-loop-building-agents/models/weather/chicago.epw
-  CSV      : /Users/cavins/Desktop/Hackathon/eco-loop-building-agents/logs/ai_run.csv
-  Model    : llama-3.1-8b-instant
-  Base URL : https://api.groq.com/openai/v1
-  Interval : every 12 callback(s)
-============================================================
-ExpandObjects Started.
-No expanded file generated.
-ExpandObjects Finished. Time:     0.010
-[EnergyPlusRunner] Energy handles: demand=37 facility_meter=84 cooling_meter=95
-[EnergyPlusRunner] Handles cached (actuator mode=zone).
-  [   1] 1986-07-15 00:10  Tout=24.7°C  Tzone=25.6°C  kWh=0.00
-  [   2] 1986-07-15 00:20  Tout=23.7°C  Tzone=25.5°C  kWh=0.00
-  [   3] 1986-07-15 00:30  Tout=22.8°C  Tzone=25.4°C  kWh=0.00
-  → LLM ACT  #1 (0.96s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.12°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #2 (0.47s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=24.93°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #3 (5.02s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=26.09°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #4 (23.15s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=27.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #5 (17.81s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  [  72] 1986-07-15 11:60  Tout=30.6°C  Tzone=25.0°C  kWh=34.34
-  → LLM ACT  #6 (23.35s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #7 (18.82s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #8 (22.82s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0, 'Perimeter_ZN_4': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #9 (20.69s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0, 'Perimeter_ZN_4': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #10 (20.67s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #11 (19.56s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  [ 144] 1986-07-15 23:60  Tout=25.6°C  Tzone=26.1°C  kWh=91.20
-  → LLM ACT  #12 (20.69s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.11°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #13 (19.60s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.8°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #14 (19.71s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.86°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #15 (21.61s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.73°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #16 (19.67s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 24.5} heat=-  | Adjusted setpoints for comfort/energy: zone=27.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #17 (20.84s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 24.5} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  [ 216] 1986-07-16 11:60  Tout=32.2°C  Tzone=25.0°C  kWh=133.75
-  → LLM ACT  #18 (19.78s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 24.5} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #19 (21.60s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 24.5} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #20 (19.74s)  cool={'Core_ZN': 26.0, 'Perimeter_ZN_1': 25.5, 'Perimeter_ZN_2': 25.5, 'Perimeter_ZN_3': 25.5, 'Perimeter_ZN_4': 25.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 26.0, 'Perimeter_Z
-  → LLM ACT  #21 (21.50s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 24.5} heat=-  | Adjusted setpoints for comfort/energy: zone=26.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #22 (18.84s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #23 (21.62s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.64°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  [ 288] 1986-07-16 23:60  Tout=26.1°C  Tzone=26.5°C  kWh=196.79
-  → LLM ACT  #24 (20.66s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=26.5°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #25 (20.51s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.37°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #26 (19.67s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=26.21°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #27 (19.54s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=27.01°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  → LLM ACT  #28 (19.58s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=27.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #29 (19.57s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  [ 360] 1986-07-17 11:65  Tout=33.3°C  Tzone=25.0°C  kWh=241.96
-  → LLM ACT  #30 (9.48s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #31 (13.69s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #32 (19.70s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #33 (19.80s)  cool={'Core_ZN': 25.0, 'Perimeter_ZN_1': 25.0, 'Perimeter_ZN_2': 25.0, 'Perimeter_ZN_3': 25.0, 'Perimeter_ZN_4': 25.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #34 (18.94s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat=-  | Adjusted setpoints for comfort/energy: zone=25.0°C, cooling→{'Core_ZN': 25.0, 'Perimeter_Z
-  → LLM ACT  #35 (19.83s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0, 'Perimeter_ZN_3': 21.0}  | Adjusted setpoints for comfort/energy: zone=26.58°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-  [ 432] 1986-07-17 23:60  Tout=26.1°C  Tzone=26.5°C  kWh=305.84
-  → LLM ACT  #36 (21.66s)  cool={'Core_ZN': 27.0, 'Perimeter_ZN_1': 27.0, 'Perimeter_ZN_2': 27.0, 'Perimeter_ZN_3': 27.0, 'Perimeter_ZN_4': 27.0} heat={'Core_ZN': 21.0, 'Perimeter_ZN_1': 21.0, 'Perimeter_ZN_2': 21.0}  | Adjusted setpoints for comfort/energy: zone=26.46°C, cooling→{'Core_ZN': 25.0, 'Perimeter_
-Validation summary:
-  sensor rows       : 432
-  decision rows     : 36
-  outdoor °C        : 18.9 .. 33.9
-  zone °C           : 24.9 .. 27.0
-  total kWh         : 305.84
-  vs baseline kWh   : 356.15 → 305.84 (+14.1%)
+Eco-Loop AI closed-loop — finalized 30-day summary
+==================================================
+Period            : Jun 15 – Jul 14 (Chicago EPW)
+Callbacks         : 4320
+Baseline kWh      : 1759.32
+AI kWh            : 1696.81
+Energy savings    : 3.6%
+Occupied comfort  : 66.8% (baseline occupied 87.9%)
+All-hours comfort : 58.2% (includes overnight setback ~27°C)
 ------------------------------------------------------------
-EnergyPlus exit code : 0
-Callbacks            : 432
-Log records          : 468
-LLM decisions        : 36 (noops=0, errors=0)
-LLM time total       : 661.1s (avg 18.37s)
-CSV written          : /Users/cavins/Desktop/Hackathon/eco-loop-building-agents/logs/ai_run.csv (OK)
-------------------------------------------------------------
+Regenerate live metrics anytime with:
+  PYTHONPATH=. python dashboard/dashboard.py

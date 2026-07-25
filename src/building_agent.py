@@ -26,38 +26,48 @@ if TYPE_CHECKING:
 SYSTEM_PROMPT = f"""You are an autonomous HVAC control agent for a small office building
 simulated in EnergyPlus (summer, cooling-dominated). Objectives, in priority order:
 
-1. Keep zone air temperature inside the comfort band
-   {config.COMFORT_TEMP_MIN_C}–{config.COMFORT_TEMP_MAX_C} °C.
+1. Keep zone air temperature inside the applicable comfort band for the hour.
 2. Minimize cooling electricity.
 
-Critical energy-saving rule for COOLING season:
-- Raising the cooling setpoint SAVES energy. Lowering it WASTES energy.
-- Default daytime cooling setpoint: {config.COMFORT_TEMP_MAX_C}°C (top of comfort).
-- Band-edge load reduction (do this actively — do NOT default to mid-band):
-  when zone temperature has margin inside the
-  {config.COMFORT_TEMP_MIN_C}–{config.COMFORT_TEMP_MAX_C}°C comfort band and
-  outdoor conditions allow, move setpoints toward the edge that cuts HVAC load:
-  warmer cooling setpoint (toward {config.COMFORT_TEMP_MAX_C}°C) when cooling;
-  cooler heating setpoint (toward {config.COMFORT_TEMP_MIN_C}°C) when heating.
-  Prefer the load-reducing edge over mid-band setpoints (e.g. avoid parking at
-  ~23°C when ~{config.COMFORT_TEMP_MAX_C}°C cooling still keeps the zone in band).
-- Night / early morning (hour < 7 or hour >= 19): raise cooling to 26–27°C to
-  avoid unnecessary overnight cooling while allowing mild drift.
-- Only drop cooling toward 23–24°C if zone temp is clearly ABOVE
-  {config.COMFORT_TEMP_MAX_C}°C.
-- Do NOT cool to 22–23°C — that wastes energy versus the baseline.
+Occupied vs unoccupied bands (formal day/night split):
+- OCCUPIED hours (07:00 ≤ hour < 19:00): tighter comfort band
+  {config.COMFORT_TEMP_MIN_C}–{config.COMFORT_TEMP_MAX_C} °C. Setpoints must stay
+  inside this band. Prefer energy-saving edges only when predictive features allow.
+- UNOCCUPIED hours (hour < 7 or hour ≥ 19): looser band — raise cooling to
+  26–27°C (night setback) to avoid unnecessary overnight cooling. Mild zone
+  drift above {config.COMFORT_TEMP_MAX_C}°C is acceptable when unoccupied.
+
+Predictive + guardrail policy (use `trend_features` in the user JSON):
+- Move a setpoint toward the load-reducing comfort-band edge ONLY if BOTH:
+  (a) margin_to_nearer_boundary_c ≥ 1.0°C, AND
+  (b) outdoor_trend is stable or favorable (cooling season: flat or falling,
+      not rising / not sharply approaching a peak or trough).
+- Otherwise hold a more conservative setpoint closer to the CENTER of the
+  occupied band (~23°C cooling).
+- When (a)+(b) hold: warmer cooling SP (toward {config.COMFORT_TEMP_MAX_C}°C)
+  when cooling; cooler heating SP (toward {config.COMFORT_TEMP_MIN_C}°C) when heating.
+- Raising cooling saves energy; lowering it wastes energy. Do NOT cool to 22–23°C
+  in occupied hours unless the zone is clearly above the occupied band.
 - Heating setpoint: keep near {config.COMFORT_TEMP_MIN_C}°C in summer (deadband).
 - Always issue a tool call. Prefer set_cooling_setpoint on {config.PRIMARY_ZONE}.
 - Multi-zone: after setting Core_ZN, also set Perimeter_ZN_1..4 to the SAME
   cooling setpoint unless a perimeter zone is >0.8°C hotter than Core (then
   give that zone 0.5°C lower cooling SP).
-- When carbon_level is "high", bias toward the highest acceptable cooling SP.
+- When carbon_level is "high", bias toward the highest acceptable cooling SP
+  only if (a)+(b) still hold; otherwise stay conservative / mid-band.
 - One short sentence of reasoning max.
 
-Bounds:
+Hard bounds (actuators):
 - Cooling setpoints: [{config.COOLING_SETPOINT_MIN_C}, {config.COOLING_SETPOINT_MAX_C}] °C
 - Heating setpoints: [{config.HEATING_SETPOINT_MIN_C}, {config.HEATING_SETPOINT_MAX_C}] °C
 """
+
+# Deterministic post-LLM guardrails
+MAX_SETPOINT_STEP_C = 1.5
+EDGE_MARGIN_MIN_C = 1.0
+NO_CHURN_MARGIN_DELTA_C = 1.0
+OCCUPIED_HOUR_START = 7
+OCCUPIED_HOUR_END = 19
 
 
 @dataclass
@@ -97,6 +107,10 @@ class BuildingAgent:
         self.timeout_s = timeout_s if timeout_s is not None else config.LLM_TIMEOUT_S
         self._history: deque[dict[str, Any]] = deque(maxlen=history_len)
         self._client: OpenAI | None = None
+        # No-churn: signed cooling deltas from the last two decisions + margin.
+        self._decision_dirs: deque[float] = deque(maxlen=2)
+        self._last_decision_margin_c: float | None = None
+        self._guardrail_notes: list[str] = []
 
         if not self.api_key:
             raise ValueError(
@@ -116,13 +130,17 @@ class BuildingAgent:
 
     def decide(self, state: dict[str, Any] | None = None) -> AgentDecision:
         """
-        One agent turn: prompt → tool call(s) → execute → return action + reasoning.
+        One agent turn: prompt → tool call(s) → guardrail clamp → execute.
 
         Retries once on malformed / empty tool responses, then falls back to a
         deterministic energy-saving heuristic (never blocks the sim for minutes).
         """
         state = state or self.runner.get_state()
         self._history.append(self._compact_state(state))
+        self._guardrail_notes = []
+        self._pre_decision_cooling = self._last_applied_setpoint(
+            "cooling", config.PRIMARY_ZONE
+        )
 
         last_error: str | None = None
         attempts = 1 + max(0, config.LLM_MAX_RETRIES)
@@ -132,7 +150,9 @@ class BuildingAgent:
             try:
                 decision = self._call_llm_and_execute(state, attempt=attempt)
                 if decision.tool_calls or decision.action:
-                    return self._enforce_energy_policy(state, decision)
+                    decision = self._enforce_energy_policy(state, decision)
+                    self._record_decision_churn(state, decision)
+                    return decision
                 last_error = decision.error or "empty tool call"
             except RateLimitError as exc:
                 rate_limited = True
@@ -158,7 +178,148 @@ class BuildingAgent:
             f"Heuristic fallback ({'rate-limit' if rate_limited else 'llm-error'}): "
             + fallback.reasoning
         )
+        self._record_decision_churn(state, fallback)
         return fallback
+
+    def _is_occupied(self, state: dict[str, Any]) -> bool:
+        hour = self._sim_hour(state)
+        return OCCUPIED_HOUR_START <= hour < OCCUPIED_HOUR_END
+
+    def _last_applied_setpoint(self, kind: str, zone: str) -> float | None:
+        applied = self.runner._last_applied or {}  # noqa: SLF001 — intentional
+        bucket = applied.get(kind) or {}
+        if isinstance(bucket, dict) and zone in bucket:
+            try:
+                return float(bucket[zone])
+            except (TypeError, ValueError):
+                return None
+        # Flat fallback
+        if kind == "cooling" and "cooling_setpoint" in applied:
+            try:
+                return float(applied["cooling_setpoint"])
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    def _current_margin_c(self, state: dict[str, Any]) -> float | None:
+        features = self.runner.compute_trend_features(3)
+        m = features.get("margin_to_nearer_boundary_c")
+        if isinstance(m, (int, float)):
+            return float(m)
+        zt = state.get("zone_temp_c")
+        if isinstance(zt, (int, float)):
+            lo, hi = config.COMFORT_TEMP_MIN_C, config.COMFORT_TEMP_MAX_C
+            return min(float(zt) - lo, hi - float(zt))
+        return None
+
+    def _no_churn_hold(self, state: dict[str, Any]) -> bool:
+        """Hold if last two moves opposed and margin hasn't shifted much.
+
+        Disabled during unoccupied hours so night setback can still ramp.
+        """
+        if not self._is_occupied(state):
+            return False
+        if len(self._decision_dirs) < 2:
+            return False
+        d0, d1 = self._decision_dirs[0], self._decision_dirs[1]
+        if d0 == 0 or d1 == 0 or d0 * d1 >= 0:
+            return False
+        margin = self._current_margin_c(state)
+        if margin is None or self._last_decision_margin_c is None:
+            return True
+        return abs(margin - self._last_decision_margin_c) <= NO_CHURN_MARGIN_DELTA_C
+
+    def _clamp_setpoint_value(
+        self,
+        kind: str,
+        zone: str,
+        requested: float,
+        state: dict[str, Any],
+        *,
+        allow_unoccupied_setback: bool = True,
+    ) -> float:
+        """
+        Deterministic clamp before apply_action:
+          - max ±1.5°C from last applied setpoint for this zone/kind
+          - occupied hours: hard-clip into comfort band
+          - always respect actuator min/max
+          - no-churn: hold last applied when opposite oscillation
+        """
+        notes: list[str] = []
+        occupied = self._is_occupied(state)
+        last = self._last_applied_setpoint(kind, zone)
+        value = float(requested)
+
+        if self._no_churn_hold(state) and last is not None:
+            notes.append(f"no-churn hold {kind}/{zone}={last:.1f}")
+            value = last
+        else:
+            if last is not None:
+                lo_step = last - MAX_SETPOINT_STEP_C
+                hi_step = last + MAX_SETPOINT_STEP_C
+                clamped = max(lo_step, min(hi_step, value))
+                if clamped != value:
+                    notes.append(
+                        f"step-cap {kind}/{zone} {value:.1f}→{clamped:.1f} (Δ≤{MAX_SETPOINT_STEP_C})"
+                    )
+                value = clamped
+
+            if occupied:
+                band_lo, band_hi = config.COMFORT_TEMP_MIN_C, config.COMFORT_TEMP_MAX_C
+                clipped = max(band_lo, min(band_hi, value))
+                if clipped != value:
+                    notes.append(
+                        f"occupied-band clip {kind}/{zone} {value:.1f}→{clipped:.1f}"
+                    )
+                value = clipped
+            elif (
+                allow_unoccupied_setback
+                and kind == "cooling"
+                and value < 26.0
+                and (last is None or last < 26.0)
+            ):
+                # Soft preference only — night policy may raise further later.
+                pass
+
+        if kind == "cooling":
+            value = max(config.COOLING_SETPOINT_MIN_C, min(config.COOLING_SETPOINT_MAX_C, value))
+        else:
+            value = max(config.HEATING_SETPOINT_MIN_C, min(config.HEATING_SETPOINT_MAX_C, value))
+
+        self._guardrail_notes.extend(notes)
+        return round(value, 2)
+
+    def _guardrail_tool_args(
+        self, name: str, args: dict[str, Any], state: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Rewrite setpoint tool args through deterministic clamps before apply."""
+        if name not in ("set_cooling_setpoint", "set_heating_setpoint"):
+            return args
+        out = dict(args)
+        zone = out.get("zone_name") or config.PRIMARY_ZONE
+        try:
+            raw = float(out.get("value_celsius"))
+        except (TypeError, ValueError):
+            return out
+        kind = "cooling" if name == "set_cooling_setpoint" else "heating"
+        out["value_celsius"] = self._clamp_setpoint_value(kind, zone, raw, state)
+        return out
+
+    def _record_decision_churn(self, state: dict[str, Any], decision: AgentDecision) -> None:
+        """Track signed primary-zone cooling moves for the no-churn rule."""
+        action = decision.action or {}
+        cooling = action.get("cooling") or {}
+        zone = config.PRIMARY_ZONE
+        new_val = cooling.get(zone)
+        if new_val is None and isinstance(cooling, dict) and cooling:
+            new_val = next(iter(cooling.values()))
+        prior = getattr(self, "_pre_decision_cooling", None)
+        if prior is not None and new_val is not None:
+            direction = float(new_val) - float(prior)
+        else:
+            direction = 0.0
+        self._decision_dirs.append(direction)
+        self._last_decision_margin_c = self._current_margin_c(state)
 
     def _sim_hour(self, state: dict[str, Any]) -> int:
         hour = (state.get("sim_time") or {}).get("hour")
@@ -179,14 +340,16 @@ class BuildingAgent:
         Guardrails after the LLM acts:
         - Night: force cooling ≥ 26.5°C (baseline setback is ~30°C; don't over-cool).
         - Expand single-zone actions to all zones.
+        - All writes go through clamp → apply.
         """
         hour = self._sim_hour(state)
         action = dict(decision.action or {})
         cooling = dict(action.get("cooling") or {})
         heating = dict(action.get("heating") or {})
+        occupied = self._is_occupied(state)
 
         # Night setback — critical for beating baseline energy.
-        if hour < 7 or hour >= 19:
+        if not occupied:
             target = 27.0
             changed = False
             for z in config.ZONES:
@@ -195,11 +358,15 @@ class BuildingAgent:
                     cooling[z] = target
                     changed = True
             if changed:
-                for z, val in cooling.items():
+                for z, val in list(cooling.items()):
+                    clamped = self._clamp_setpoint_value(
+                        "cooling", z, float(val), state, allow_unoccupied_setback=True
+                    )
+                    cooling[z] = clamped
                     execute_tool(
                         self.runner,
                         "set_cooling_setpoint",
-                        {"zone_name": z, "value_celsius": val},
+                        {"zone_name": z, "value_celsius": clamped},
                     )
                 decision.reasoning = (
                     (decision.reasoning or "") + f" | night setback→{target}°C"
@@ -209,21 +376,32 @@ class BuildingAgent:
             if cooling and config.PRIMARY_ZONE in cooling and len(cooling) == 1:
                 primary_val = float(cooling[config.PRIMARY_ZONE])
                 for z in config.ZONES:
-                    cooling[z] = primary_val
+                    clamped = self._clamp_setpoint_value("cooling", z, primary_val, state)
+                    cooling[z] = clamped
                     execute_tool(
                         self.runner,
                         "set_cooling_setpoint",
-                        {"zone_name": z, "value_celsius": primary_val},
+                        {"zone_name": z, "value_celsius": clamped},
                     )
             if heating and config.PRIMARY_ZONE in heating and len(heating) == 1:
                 primary_val = float(heating[config.PRIMARY_ZONE])
                 for z in config.ZONES:
-                    heating[z] = primary_val
+                    clamped = self._clamp_setpoint_value("heating", z, primary_val, state)
+                    heating[z] = clamped
                     execute_tool(
                         self.runner,
                         "set_heating_setpoint",
-                        {"zone_name": z, "value_celsius": primary_val},
+                        {"zone_name": z, "value_celsius": clamped},
                     )
+
+        if self._guardrail_notes:
+            uniq = []
+            for n in self._guardrail_notes:
+                if n not in uniq:
+                    uniq.append(n)
+            decision.reasoning = (
+                (decision.reasoning or "") + " | guardrails: " + "; ".join(uniq[:4])
+            ).strip(" |")
 
         if cooling:
             action["cooling"] = cooling
@@ -236,25 +414,34 @@ class BuildingAgent:
     def _heuristic_decide(self, state: dict[str, Any]) -> AgentDecision:
         """Deterministic summer policy: raise cooling SP on ALL zones to save energy."""
         zt = state.get("zone_temp_c")
-        hour = (state.get("sim_time") or {}).get("hour")
-        if hour is None and state.get("timestamp"):
-            try:
-                hour = int(str(state["timestamp"]).split()[1].split(":")[0])
-            except Exception:
-                hour = 12
+        hour = self._sim_hour(state)
+        features = self.runner.compute_trend_features(3)
+        margin = features.get("margin_to_nearer_boundary_c")
+        favorable = bool(features.get("favorable_for_edge"))
 
         carbon = get_carbon_signal(state)
-        if isinstance(hour, (int, float)) and (hour < 7 or hour >= 19):
+        if not self._is_occupied(state):
             cool_sp = min(config.COOLING_SETPOINT_MAX_C, 27.0)
             reason = f"Night setback cooling={cool_sp}°C"
         elif isinstance(zt, (int, float)) and zt > config.COMFORT_TEMP_MAX_C + 0.3:
             cool_sp = max(config.COOLING_SETPOINT_MIN_C, config.COMFORT_TEMP_MAX_C - 0.5)
             reason = f"Zone warm ({zt:.1f}°C) — cooling={cool_sp}°C"
-        else:
+        elif (
+            isinstance(margin, (int, float))
+            and margin >= EDGE_MARGIN_MIN_C
+            and favorable
+        ):
             cool_sp = config.COMFORT_TEMP_MAX_C
             if carbon.level == "high":
                 cool_sp = min(config.COOLING_SETPOINT_MAX_C, cool_sp + 0.5)
-            reason = f"Hold cooling={cool_sp}°C (carbon={carbon.level})"
+            reason = f"Edge OK (margin={margin:.1f}, trend={features.get('outdoor_trend')})"
+        else:
+            # Conservative mid-band when margin/trend not favorable.
+            cool_sp = 0.5 * (config.COMFORT_TEMP_MIN_C + config.COMFORT_TEMP_MAX_C)
+            reason = (
+                f"Hold mid-band cooling={cool_sp}°C "
+                f"(margin={margin}, trend={features.get('outdoor_trend')})"
+            )
 
         heat_sp = config.COMFORT_TEMP_MIN_C
         results = []
@@ -273,6 +460,8 @@ class BuildingAgent:
                 and zt_z > core_t + 0.8
             ):
                 z_cool = max(config.COOLING_SETPOINT_MIN_C, cool_sp - 0.5)
+            z_cool = self._clamp_setpoint_value("cooling", zone, z_cool, state)
+            z_heat = self._clamp_setpoint_value("heating", zone, heat_sp, state)
             results.append(
                 execute_tool(
                     self.runner,
@@ -284,17 +473,17 @@ class BuildingAgent:
                 execute_tool(
                     self.runner,
                     "set_heating_setpoint",
-                    {"zone_name": zone, "value_celsius": heat_sp},
+                    {"zone_name": zone, "value_celsius": z_heat},
                 )
             )
             tool_calls.append(
                 {"name": "set_cooling_setpoint", "arguments": {"zone_name": zone, "value_celsius": z_cool}}
             )
             tool_calls.append(
-                {"name": "set_heating_setpoint", "arguments": {"zone_name": zone, "value_celsius": heat_sp}}
+                {"name": "set_heating_setpoint", "arguments": {"zone_name": zone, "value_celsius": z_heat}}
             )
             cooling_map[zone] = z_cool
-            heating_map[zone] = heat_sp
+            heating_map[zone] = z_heat
 
         return AgentDecision(
             action={"cooling": cooling_map, "heating": heating_map},
@@ -322,30 +511,55 @@ class BuildingAgent:
     def _build_user_message(self, state: dict[str, Any]) -> str:
         current = self._compact_state(state)
         history = list(self._history)
-        # Exclude the just-appended current reading from "recent" to avoid dup.
         recent = history[:-1] if len(history) > 1 else []
+
+        trend_features = self.runner.compute_trend_features(3)
+        lo, hi = config.COMFORT_TEMP_MIN_C, config.COMFORT_TEMP_MAX_C
+        margin_c = trend_features.get("margin_to_nearer_boundary_c")
+        occupied = self._is_occupied(state)
 
         comfort_status = "unknown"
         zt = current.get("zone_temp_c")
         if isinstance(zt, (int, float)):
-            if zt < config.COMFORT_TEMP_MIN_C:
-                comfort_status = "BELOW comfort band — raise heating / lower cooling carefully"
-            elif zt > config.COMFORT_TEMP_MAX_C:
-                comfort_status = "ABOVE comfort band — lower cooling setpoint or increase cooling"
+            if zt < lo:
+                comfort_status = "BELOW occupied comfort band"
+            elif zt > hi:
+                comfort_status = (
+                    "ABOVE occupied comfort band"
+                    if occupied
+                    else "Above occupied band (unoccupied — setback OK)"
+                )
+            elif isinstance(margin_c, (int, float)) and margin_c >= EDGE_MARGIN_MIN_C:
+                comfort_status = (
+                    "INSIDE band with ≥1°C margin — edge OK only if outdoor trend favorable"
+                )
             else:
-                comfort_status = "INSIDE comfort band — prioritize energy savings"
+                comfort_status = (
+                    "INSIDE band but <1°C margin — hold conservative mid-band setpoint"
+                )
 
         carbon = get_carbon_signal(state)
+        band_edge_allowed = bool(
+            isinstance(margin_c, (int, float))
+            and margin_c >= EDGE_MARGIN_MIN_C
+            and trend_features.get("favorable_for_edge")
+        )
 
         payload = {
-            "objective": "minimize energy (and carbon) while respecting comfort band",
-            "comfort_band_c": [config.COMFORT_TEMP_MIN_C, config.COMFORT_TEMP_MAX_C],
+            "objective": "minimize energy (and carbon) while respecting occupied/unoccupied bands",
+            "hour_mode": "occupied" if occupied else "unoccupied",
+            "occupied_comfort_band_c": [lo, hi],
+            "unoccupied_cooling_setback_c": [26.0, 27.0],
             "comfort_status": comfort_status,
+            "trend_features": trend_features,
+            "band_edge_allowed": band_edge_allowed,
+            "recent_logged_readings": self.runner.get_recent_readings(3),
             "primary_zone": config.PRIMARY_ZONE,
             "zones": list(config.ZONES),
             "carbon": carbon.as_prompt_block(),
             "current": current,
-            "recent_readings": recent,
+            "recent_agent_readings": recent,
+            "no_churn_hold_active": self._no_churn_hold(state),
         }
         return (
             "Current building state (JSON). Decide the next HVAC setpoints "
@@ -410,6 +624,10 @@ class BuildingAgent:
                 results.append(result)
                 continue
 
+            # Deterministic clamp / no-churn BEFORE apply_action.
+            if name in ("set_cooling_setpoint", "set_heating_setpoint"):
+                args = self._guardrail_tool_args(name, args, state)
+
             parsed_calls.append({"name": name, "arguments": args})
             result = execute_tool(self.runner, name, args)
             results.append(result)
@@ -443,7 +661,7 @@ class BuildingAgent:
             reasoning=reasoning,
             tool_calls=parsed_calls,
             tool_results=results,
-            noop=not aggregated_action,
+            noop=not bool(aggregated_action),
         )
 
 

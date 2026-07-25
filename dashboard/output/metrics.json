@@ -1,40 +1,41 @@
 {
-  "baseline_kwh": 356.1481833149082,
-  "ai_kwh": 305.84249488777454,
-  "savings_kwh": 50.305688427133646,
-  "savings_pct": 14.124931919883775,
+  "baseline_kwh": 1759.3183623109187,
+  "ai_kwh": 1696.8070926388507,
+  "savings_kwh": 62.51126967206801,
+  "savings_pct": 3.5531528011767888,
   "comfort_lo": 21.0,
   "comfort_hi": 25.0,
   "baseline_comfort": {
-    "pct_in_band": 70.13888888888889,
-    "violations": 129,
-    "n": 432,
-    "t_min": 23.99802917221616,
-    "t_max": 25.829419223560727,
-    "t_mean": 24.49448554307055
+    "pct_in_band": 84.56018518518519,
+    "violations": 667,
+    "n": 4320,
+    "t_min": 22.374241115301327,
+    "t_max": 26.496077054678587,
+    "t_mean": 24.314040397869974
   },
   "ai_comfort": {
-    "pct_in_band": 47.91666666666667,
-    "violations": 225,
-    "n": 432,
-    "t_min": 24.91842804959525,
-    "t_max": 27.013206916775847,
-    "t_mean": 25.63589529550315
+    "pct_in_band": 58.14814814814815,
+    "violations": 1808,
+    "n": 4320,
+    "t_min": 22.662653657919797,
+    "t_max": 26.99996376372781,
+    "t_mean": 25.0483631813252
   },
   "baseline_comfort_occupied": {
-    "pct_in_band": 100.0,
-    "violations": 0,
-    "n": 216,
-    "t_min": 23.99802917221616,
-    "t_max": 23.9998828402569,
-    "t_mean": 23.999196102455084
+    "pct_in_band": 87.91666666666667,
+    "violations": 261,
+    "n": 2160,
+    "t_min": 23.68333096454197,
+    "t_max": 26.496077054678587,
+    "t_mean": 24.267671922978234
   },
   "ai_comfort_occupied": {
-    "pct_in_band": 82.4074074074074,
-    "violations": 38,
-    "n": 216,
-    "t_min": 24.998101820962138,
-    "t_max": 26.999916467862857,
-    "t_mean": 25.223949065619923
-  }
+    "pct_in_band": 66.80555555555556,
+    "violations": 717,
+    "n": 2160,
+    "t_min": 23.748726093656472,
+    "t_max": 26.99996376372781,
+    "t_mean": 25.186192191120114
+  },
+  "tradeoff_note": "Baseline achieves 87.9% occupied-hours comfort because it holds a fixed conservative setpoint with no optimization objective; the AI agent achieves 66.8% occupied-hours compliance while reducing energy use by 3.6% over a 30-day period spanning both mild and peak outdoor conditions \u2014 a tradeoff the fixed baseline schedule cannot make. All-hours comfort (58.1%) is lower because it includes intentional overnight setback to ~27\u00b0C during unoccupied periods, which is by design."
 }

@@ -10,6 +10,7 @@ Registers two callbacks on a single run_energyplus() invocation:
 from __future__ import annotations
 
 import sys
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -110,6 +111,8 @@ class EnergyPlusRunner:
         self._cumulative_cooling_kwh = 0.0
         self._variables_requested = False
         self._last_logged_time_key: tuple[int, int, int, int, int] | None = None
+        # Rolling window of logged sensor snapshots for predictive features.
+        self._sensor_history: deque[dict[str, Any]] = deque(maxlen=3)
 
     # ------------------------------------------------------------------
     # Public API
@@ -118,6 +121,69 @@ class EnergyPlusRunner:
     def get_state(self) -> dict[str, Any]:
         """Return the latest sensor snapshot (empty until first successful callback)."""
         return dict(self._current_state)
+
+    def get_recent_readings(self, n: int = 3) -> list[dict[str, Any]]:
+        """Return up to the last N logged sensor snapshots (oldest → newest)."""
+        items = list(self._sensor_history)
+        return items[-n:] if n < len(items) else items
+
+    def compute_trend_features(self, n: int = 3) -> dict[str, Any]:
+        """
+        Lightweight predictive features from the last N logged readings:
+          outdoor_temp_delta_c, zone_temp_delta_c, margin_to_nearer_boundary_c.
+        """
+        readings = self.get_recent_readings(n)
+        lo, hi = config.COMFORT_TEMP_MIN_C, config.COMFORT_TEMP_MAX_C
+        if not readings:
+            return {
+                "n_readings": 0,
+                "outdoor_temp_delta_c": None,
+                "zone_temp_delta_c": None,
+                "margin_to_nearer_boundary_c": None,
+                "outdoor_trend": "insufficient_history",
+                "favorable_for_edge": False,
+            }
+
+        def _f(v: Any) -> float | None:
+            return float(v) if isinstance(v, (int, float)) else None
+
+        outdoors = [_f(r.get("outdoor_temp_c")) for r in readings]
+        zones = [_f(r.get("zone_temp_c")) for r in readings]
+        outdoors_ok = [t for t in outdoors if t is not None]
+        zones_ok = [t for t in zones if t is not None]
+
+        outdoor_delta = (
+            outdoors_ok[-1] - outdoors_ok[0] if len(outdoors_ok) >= 2 else None
+        )
+        zone_delta = zones_ok[-1] - zones_ok[0] if len(zones_ok) >= 2 else None
+
+        zt = zones_ok[-1] if zones_ok else None
+        margin = min(zt - lo, hi - zt) if zt is not None else None
+
+        # Classify outdoor trend for band-edge gating (cooling season).
+        if outdoor_delta is None:
+            outdoor_trend = "insufficient_history"
+            favorable = False
+        elif abs(outdoor_delta) < 0.5:
+            outdoor_trend = "stable"
+            favorable = True
+        elif outdoor_delta > 0:
+            outdoor_trend = "rising_sharp" if outdoor_delta >= 2.0 else "rising"
+            favorable = False  # approaching a peak — hold mid-band
+        else:
+            sharp = outdoor_delta <= -2.0
+            outdoor_trend = "falling_sharp" if sharp else "falling"
+            favorable = not sharp
+
+        return {
+            "n_readings": len(readings),
+            "outdoor_temp_delta_c": round(outdoor_delta, 3) if outdoor_delta is not None else None,
+            "zone_temp_delta_c": round(zone_delta, 3) if zone_delta is not None else None,
+            "margin_to_nearer_boundary_c": round(margin, 3) if margin is not None else None,
+            "outdoor_trend": outdoor_trend,
+            "favorable_for_edge": favorable,
+            "comfort_band_c": [lo, hi],
+        }
 
     def apply_action(self, setpoints: dict[str, Any]) -> dict[str, Any]:
         """
@@ -229,6 +295,7 @@ class EnergyPlusRunner:
         self._cumulative_cooling_kwh = 0.0
         self._variables_requested = False
         self._last_logged_time_key = None
+        self._sensor_history = deque(maxlen=3)
 
     def _request_variables(self, state: Any) -> None:
         """Ask EnergyPlus to keep these variables available to the API."""
@@ -297,6 +364,14 @@ class EnergyPlusRunner:
 
         self._current_state = self._read_sensors(state)
         self._callback_count += 1
+        self._sensor_history.append(
+            {
+                "timestamp": self._current_state.get("timestamp"),
+                "outdoor_temp_c": self._current_state.get("outdoor_temp_c"),
+                "zone_temp_c": self._current_state.get("zone_temp_c"),
+                "callback_index": self._callback_count,
+            }
+        )
 
         # Always log raw sensors before any AI / external control decision.
         if self.logger is not None:

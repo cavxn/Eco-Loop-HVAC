@@ -45,7 +45,7 @@ src/run_baseline.py / run_ai_loop.py
 dashboard/dashboard.py     # matplotlib comparison charts
 dashboard/streamlit_app.py # live UI (stretch)
 docs/ARCHITECTURE.md
-models/baseline.idf        # RefBldg Small Office, Jul 15–17
+models/baseline.idf        # RefBldg Small Office, Jun 15–Jul 14 (30-day)
 ```
 
 ## Scoring focus
@@ -53,8 +53,8 @@ models/baseline.idf        # RefBldg Small Office, Jul 15–17
 | Rubric | How we hit it |
 |--------|----------------|
 | System integration (30%) | Callbacks never crash; LLM retry + heuristic fallback |
-| Energy efficiency (25%) | Raise cooling SP / night setback vs baseline 24°C |
-| Thermal comfort (20%) | Band enforced in prompt + actuator clamps |
+| Energy efficiency (25%) | **3.6%** savings over 30 days (1759.3 → 1696.8 kWh) via raised cooling SP / night setback |
+| Thermal comfort (20%) | **66.8%** occupied-hours in-band (07–19h); all-hours **58.2%** includes intentional overnight setback |
 | Agentic tool-calling (15%) | 3 tools, MCP-compatible schemas + optional MCP server |
 | Docs (10%) | `docs/ARCHITECTURE.md` |
 
