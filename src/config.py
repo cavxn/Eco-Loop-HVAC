@@ -49,8 +49,8 @@ HEATING_SETPOINT_MIN_C = 18.0
 HEATING_SETPOINT_MAX_C = 22.0
 
 # Call the LLM every N system-timestep callbacks (Timestep=6 → 10 min steps;
-# N=4 ≈ every 40 simulated minutes)
-AGENT_CALLBACK_INTERVAL = int(os.getenv("AGENT_CALLBACK_INTERVAL", "4"))
+# N=24 ≈ every 4 simulated hours — denser control on multi-week runs)
+AGENT_CALLBACK_INTERVAL = int(os.getenv("AGENT_CALLBACK_INTERVAL", "24"))
 
 # LLM (OpenAI-compatible: Groq / Together / Fireworks)
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.groq.com/openai/v1")

@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 15:29
+Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 16:59
 ! <Version>, Version ID
  Version, 25.2
 ! <Timesteps per Hour>, #TimeSteps, Minutes per TimeStep {minutes}
@@ -510,7 +510,7 @@ HeatTransfer Surface,PERIMETER_ZN_4 INTERNAL MASS,Internal Mass,,CTF - Conductio
 ! <Environment:Special Days>, Special Day Name, Special Day Type, Source, Start Date, Duration {#days}
 ! <Environment:Daylight Saving>, Daylight Saving Indicator, Source, Start Date, End Date
 ! <Environment:WarmupDays>, NumberofWarmupDays
-Environment,POC_SUMMERDAYS,WeatherFileRunPeriod,07/15/2014,07/17/2014,Tuesday,3,Use RunPeriod Specified Day,No,No,No,Yes,Yes,Clark and Allen
+Environment,POC_30DAY_SUMMER,WeatherFileRunPeriod,06/15/2014,07/14/2014,Sunday,30,Use RunPeriod Specified Day,No,No,No,Yes,Yes,Clark and Allen
 Environment:Daylight Saving,Yes,InputFile,03/09,11/02
 Environment:Special Days,NEW YEARS DAY,Holiday,InputFile,01/01,  1
 Environment:Special Days,VETERANS DAY,Holiday,InputFile,11/11,  1
@@ -522,16 +522,16 @@ Environment:Special Days,MEMORIAL DAY,Holiday,InputFile,05/26,  1
 Environment:Special Days,LABOR DAY,Holiday,InputFile,09/01,  1
 Environment:Special Days,COLUMBUS DAY,Holiday,InputFile,10/13,  1
 Environment:Special Days,THANKSGIVING,Holiday,InputFile,11/27,  1
-Environment:WarmupDays,  6
+Environment:WarmupDays,  7
 ! <Tabular Report>,Style,Unit Conversion, Format Reals
 Tabular Report,HTML,None,Yes
 ! <Warmup Convergence Information>,Zone Name,Environment Type/Name,Average Warmup Temperature Difference {deltaC},Std Dev Warmup Temperature Difference {deltaC},Max Temperature Pass/Fail Convergence,Min Temperature Pass/Fail Convergence,Average Warmup Load Difference {W},Std Dev Warmup Load Difference {W},Heating Load Pass/Fail Convergence,Cooling Load Pass/Fail Convergence
- Warmup Convergence Information,ATTIC,RunPeriod: POC_SUMMERDAYS,0.5159811429,0.3704925711,Pass,Pass,0.0000000000,0.0000000000,Pass,Pass
- Warmup Convergence Information,CORE_ZN,RunPeriod: POC_SUMMERDAYS,2.2062299246E-002,9.0889341282E-002,Pass,Pass,2.3855077971E-002,8.3693041581E-002,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_1,RunPeriod: POC_SUMMERDAYS,2.7489942051E-002,0.1163320928,Pass,Pass,2.4256974088E-002,7.3355111313E-002,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_2,RunPeriod: POC_SUMMERDAYS,3.3118986790E-002,0.1453939008,Pass,Pass,2.1921762484E-002,6.6026697563E-002,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_3,RunPeriod: POC_SUMMERDAYS,2.7758509819E-002,0.1200877454,Pass,Pass,2.2719864998E-002,7.2870667383E-002,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_4,RunPeriod: POC_SUMMERDAYS,2.9551563914E-002,0.1280799353,Pass,Pass,2.7864126626E-002,7.2867335000E-002,Pass,Pass
+ Warmup Convergence Information,ATTIC,RunPeriod: POC_30DAY_SUMMER,0.4246284609,0.3060959851,Pass,Pass,0.0000000000,0.0000000000,Pass,Pass
+ Warmup Convergence Information,CORE_ZN,RunPeriod: POC_30DAY_SUMMER,1.3652976652E-002,6.7719102616E-003,Pass,Pass,0.0000000000,0.0000000000,Pass,Pass
+ Warmup Convergence Information,PERIMETER_ZN_1,RunPeriod: POC_30DAY_SUMMER,8.9653638300E-002,0.1414496680,Pass,Pass,0.1516129681,0.4274807903,Pass,Pass
+ Warmup Convergence Information,PERIMETER_ZN_2,RunPeriod: POC_30DAY_SUMMER,0.1939414155,0.2683975352,Pass,Pass,0.3175367709,0.4686371402,Pass,Pass
+ Warmup Convergence Information,PERIMETER_ZN_3,RunPeriod: POC_30DAY_SUMMER,3.1694470647E-002,5.0556443394E-002,Pass,Pass,5.9492522000E-002,0.4314588898,Pass,Pass
+ Warmup Convergence Information,PERIMETER_ZN_4,RunPeriod: POC_30DAY_SUMMER,0.1557958583,0.3086459971,Pass,Pass,0.1820550728,0.3966541268,Pass,Pass
 ! <Program Control Information:Threads/Parallel Sims>, Threading Supported,Maximum Number of Threads, Env Set Threads (OMP_NUM_THREADS), EP Env Set Threads (EP_OMP_NUM_THREADS), IDF Set Threads, Number of Threads Used (Interior Radiant Exchange), Number Nominal Surfaces, Number Parallel Sims
 Program Control Information:Threads/Parallel Sims, No,1, N/A, N/A, N/A, N/A, N/A, N/A
 End of Data

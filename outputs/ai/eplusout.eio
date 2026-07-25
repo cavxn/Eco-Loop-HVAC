@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 16:04
+Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 17:30
 ! <Version>, Version ID
  Version, 25.2
 ! <Timesteps per Hour>, #TimeSteps, Minutes per TimeStep {minutes}
@@ -502,36 +502,4 @@ HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST,Wall,,CTF - ConductionTransferFunc
 HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST_WINDOW_1,Window,PERIMETER_ZN_4_WALL_WEST,Window5 Detailed Fenestration,WINDOW NON-RES FIXED,N/A,3.241,No,2.79,2.79,2.79,270.00,90.00,1.83,1.52,0.00,ExternalEnvironment,DOE-2,ASHRAETARP,SunExposed,WindExposed,0.50,0.50,0.55,0.45,4
 HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST_WINDOW_2,Window,PERIMETER_ZN_4_WALL_WEST,Window5 Detailed Fenestration,WINDOW NON-RES FIXED,N/A,3.241,No,2.79,2.79,2.79,270.00,90.00,1.83,1.52,0.00,ExternalEnvironment,DOE-2,ASHRAETARP,SunExposed,WindExposed,0.50,0.50,0.55,0.45,4
 HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST_WINDOW_3,Window,PERIMETER_ZN_4_WALL_WEST,Window5 Detailed Fenestration,WINDOW NON-RES FIXED,N/A,3.241,No,2.79,2.79,2.79,270.00,90.00,1.83,1.52,0.00,ExternalEnvironment,DOE-2,ASHRAETARP,SunExposed,WindExposed,0.50,0.50,0.55,0.45,4
-HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST_WINDOW_4,Window,PERIMETER_ZN_4_WALL_WEST,Window5 Detailed Fenestration,WINDOW NON-RES FIXED,N/A,3.241,No,2.79,2.79,2.79,270.00,90.00,1.83,1.52,0.00,ExternalEnvironment,DOE-2,ASHRAETARP,SunExposed,WindExposed,0.50,0.50,0.55,0.45,4
-HeatTransfer Surface,PERIMETER_ZN_4_FLOOR,Floor,,CTF - ConductionTransferFunction,EXT-SLAB,3.401,1.862,,67.30,67.30,67.30,90.00,180.00,18.46,7.07,0.00,Ground,N/A-Ground,ASHRAETARP,NoSun,NoWind,1.00,0.00,1.00,0.00,4
-HeatTransfer Surface,PERIMETER_ZN_4_CEILING,Roof,,CTF - ConductionTransferFunction,ATTIC NON-RES FLOOR,0.200,0.193,,67.30,67.30,67.30,90.00,0.00,8.46,7.07,0.00,ATTIC_FLOOR_PERIMETER_WEST,Other/Same Surface Int Conv,ASHRAETARP,NoSun,NoWind,0.00,1.00,0.00,1.00,4
-HeatTransfer Surface,PERIMETER_ZN_4 INTERNAL MASS,Internal Mass,,CTF - ConductionTransferFunction,INTERIORFURNISHINGS,0.800,0.800,,134.60,134.60,134.60,0.00,90.00,134.60,1.00,0.00,PERIMETER_ZN_4 INTERNAL MASS,Other/Same Surface Int Conv,ASHRAETARP,NoSun,NoWind,0.00,0.50,1.00,0.00,0
-! <Environment>,Environment Name,Environment Type, Start Date, End Date, Start DayOfWeek, Duration {#days}, Source:Start DayOfWeek,  Use Daylight Saving, Use Holidays, Apply Weekend Holiday Rule,  Use Rain Values, Use Snow Values, Sky Temperature Model
-! <Environment:Special Days>, Special Day Name, Special Day Type, Source, Start Date, Duration {#days}
-! <Environment:Daylight Saving>, Daylight Saving Indicator, Source, Start Date, End Date
-! <Environment:WarmupDays>, NumberofWarmupDays
-Environment,POC_SUMMERDAYS,WeatherFileRunPeriod,07/15/2014,07/17/2014,Tuesday,3,Use RunPeriod Specified Day,No,No,No,Yes,Yes,Clark and Allen
-Environment:Daylight Saving,Yes,InputFile,03/09,11/02
-Environment:Special Days,NEW YEARS DAY,Holiday,InputFile,01/01,  1
-Environment:Special Days,VETERANS DAY,Holiday,InputFile,11/11,  1
-Environment:Special Days,CHRISTMAS,Holiday,InputFile,12/25,  1
-Environment:Special Days,INDEPENDENCE DAY,Holiday,InputFile,07/04,  1
-Environment:Special Days,MLK DAY,Holiday,InputFile,01/20,  1
-Environment:Special Days,PRESIDENTS DAY,Holiday,InputFile,02/17,  1
-Environment:Special Days,MEMORIAL DAY,Holiday,InputFile,05/26,  1
-Environment:Special Days,LABOR DAY,Holiday,InputFile,09/01,  1
-Environment:Special Days,COLUMBUS DAY,Holiday,InputFile,10/13,  1
-Environment:Special Days,THANKSGIVING,Holiday,InputFile,11/27,  1
-Environment:WarmupDays,  6
-! <Tabular Report>,Style,Unit Conversion, Format Reals
-Tabular Report,HTML,None,Yes
-! <Warmup Convergence Information>,Zone Name,Environment Type/Name,Average Warmup Temperature Difference {deltaC},Std Dev Warmup Temperature Difference {deltaC},Max Temperature Pass/Fail Convergence,Min Temperature Pass/Fail Convergence,Average Warmup Load Difference {W},Std Dev Warmup Load Difference {W},Heating Load Pass/Fail Convergence,Cooling Load Pass/Fail Convergence
- Warmup Convergence Information,ATTIC,RunPeriod: POC_SUMMERDAYS,0.5159308702,0.3704901041,Pass,Pass,0.0000000000,0.0000000000,Pass,Pass
- Warmup Convergence Information,CORE_ZN,RunPeriod: POC_SUMMERDAYS,4.7789247848E-002,0.1666375391,Pass,Pass,0.3661706873,2.9231945792,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_1,RunPeriod: POC_SUMMERDAYS,4.8905287696E-002,0.1704982994,Pass,Pass,0.2284201672,1.6012145280,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_2,RunPeriod: POC_SUMMERDAYS,4.8901448354E-002,0.1897327875,Pass,Pass,0.8073670267,6.3767016099,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_3,RunPeriod: POC_SUMMERDAYS,4.8434944830E-002,0.1712378829,Pass,Pass,0.2561446459,1.9837988205,Pass,Pass
- Warmup Convergence Information,PERIMETER_ZN_4,RunPeriod: POC_SUMMERDAYS,5.1883287427E-002,0.1903890721,Pass,Pass,0.6781885763,7.3388022381,Pass,Pass
-! <Program Control Information:Threads/Parallel Sims>, Threading Supported,Maximum Number of Threads, Env Set Threads (OMP_NUM_THREADS), EP Env Set Threads (EP_OMP_NUM_THREADS), IDF Set Threads, Number of Threads Used (Interior Radiant Exchange), Number Nominal Surfaces, Number Parallel Sims
-Program Control Information:Threads/Parallel Sims, No,1, N/A, N/A, N/A, N/A, N/A, N/A
-End of Data
+HeatTransfer Surface,PERIMETER_ZN_4_WALL_WEST_WINDOW_4,Window,PERIMETER_ZN_4_WALL_WEST,Window5 Detailed Fenestration,WINDOW NON-RES FIXED,N/A,3.241,No,2.79,2.79,2.79,270.00,90.00,1.83,1.52,0.00,ExternalEnvironment,DOE-2,ASHRAETARP,SunExposed,WindExposed,0.50,0.50,0.55,0.4

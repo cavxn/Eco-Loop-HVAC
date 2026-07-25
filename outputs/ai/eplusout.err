@@ -1,4 +1,4 @@
-Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 16:04,
+Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 17:30,
    ************* Beginning Zone Sizing Calculations
    ************* Beginning System Sizing Calculations
    ************* Beginning Plant Sizing Calculations
@@ -14,7 +14,3 @@ Program Version,EnergyPlus, Version 25.2.0-cf7368216c, YMD=2026.07.25 16:04,
    ************* Beginning Simulation
    ** Warning ** Processing Monthly Tabular Reports: Variable names not valid for this simulation
    **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual variables.
-   ************* Simulation Error Summary *************
-   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
-   ************* EnergyPlus Completed Successfully-- 3 Warning; 0 Severe Errors; Elapsed Time=00hr 11min  1.81sec

@@ -33,6 +33,14 @@ simulated in EnergyPlus (summer, cooling-dominated). Objectives, in priority ord
 Critical energy-saving rule for COOLING season:
 - Raising the cooling setpoint SAVES energy. Lowering it WASTES energy.
 - Default daytime cooling setpoint: {config.COMFORT_TEMP_MAX_C}°C (top of comfort).
+- Band-edge load reduction (do this actively — do NOT default to mid-band):
+  when zone temperature has margin inside the
+  {config.COMFORT_TEMP_MIN_C}–{config.COMFORT_TEMP_MAX_C}°C comfort band and
+  outdoor conditions allow, move setpoints toward the edge that cuts HVAC load:
+  warmer cooling setpoint (toward {config.COMFORT_TEMP_MAX_C}°C) when cooling;
+  cooler heating setpoint (toward {config.COMFORT_TEMP_MIN_C}°C) when heating.
+  Prefer the load-reducing edge over mid-band setpoints (e.g. avoid parking at
+  ~23°C when ~{config.COMFORT_TEMP_MAX_C}°C cooling still keeps the zone in band).
 - Night / early morning (hour < 7 or hour >= 19): raise cooling to 26–27°C to
   avoid unnecessary overnight cooling while allowing mild drift.
 - Only drop cooling toward 23–24°C if zone temp is clearly ABOVE
