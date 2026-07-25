@@ -11,14 +11,6 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 
-# EnergyPlus / run outputs (regenerable)
-outputs/
-logs/*
-!logs/.gitkeep
-dashboard/output/*
-!dashboard/output/metrics.json
-!dashboard/output/.gitkeep
-
 # OS / IDE
 .DS_Store
 .idea/
