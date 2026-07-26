@@ -1,36 +1,34 @@
-# 🏢 Eco-Loop Building Agents
+# Eco-Loop Building Agents
 
-> **Live Closed-Loop Physical AI for Intelligent HVAC Optimization**
+**Live Closed-Loop Physical AI for Intelligent HVAC Optimization**
 
 Eco-Loop is a **Physical AI proof-of-concept** that demonstrates how an open-source Large Language Model (LLM) can autonomously control HVAC systems inside a live **EnergyPlus** building simulation using **tool calling**. The AI continuously monitors building conditions, reasons over sensor data, updates HVAC setpoints through EnergyPlus actuators, and reduces energy consumption while maintaining occupant thermal comfort.
 
 ---
 
-## 🎥 Demo Video
-
-**Watch the project demonstration:**
+## Demo Video
 
 https://www.youtube.com/watch?v=NGmv6PbWYJI
 
 ---
 
-## ✨ Features
+## Features
 
-- 🤖 LLM-powered autonomous HVAC control
-- 🔄 Real-time closed-loop EnergyPlus integration
-- 🛠 OpenAI-compatible Tool Calling (Groq)
-- 🌡 Live HVAC actuator updates
-- 🏢 Multi-zone building optimization
-- 📊 Interactive Streamlit dashboard
-- 📈 Baseline vs AI energy comparison
-- 🛡 Predictive guardrails with heuristic fallback
-- 📝 CSV & JSONL decision logging
-- 🌍 Optional carbon-aware optimization
-- 🔌 Optional MCP server integration
+- LLM-powered autonomous HVAC control
+- Real-time closed-loop EnergyPlus integration
+- OpenAI-compatible Tool Calling (Groq)
+- Live HVAC actuator updates
+- Multi-zone building optimization
+- Interactive Streamlit dashboard
+- Baseline vs AI energy comparison
+- Predictive guardrails with heuristic fallback
+- CSV & JSONL decision logging
+- Optional carbon-aware optimization
+- Optional MCP server integration
 
 ---
 
-# 📊 Results
+# Results
 
 | Metric | Baseline | AI Controller |
 |---------|---------:|-------------:|
@@ -43,7 +41,7 @@ The AI reduces electricity consumption by intelligently adjusting cooling setpoi
 
 ---
 
-# 🏗 System Architecture
+# System Architecture
 
 ```
 EnergyPlus
@@ -73,7 +71,7 @@ Dashboard & Logger
 
 ---
 
-# 🚀 Quick Start
+# Quick Start
 
 ## 1. Clone the repository
 
@@ -111,7 +109,7 @@ Copy the example environment file.
 cp .env.example .env
 ```
 
-Update:
+Update the following values:
 
 ```text
 ENERGYPLUS_ROOT=
@@ -145,7 +143,7 @@ PYTHONPATH=. python -m src.run_ai_loop
 PYTHONPATH=. python dashboard/dashboard.py
 ```
 
-Generated charts are saved in
+Generated charts are saved in:
 
 ```
 dashboard/output/
@@ -171,7 +169,7 @@ PYTHONPATH=. python -m src.mcp_server
 
 ---
 
-# 📁 Repository Structure
+# Repository Structure
 
 ```
 Eco-Loop-HVAC
@@ -205,7 +203,7 @@ Eco-Loop-HVAC
 
 ---
 
-# ⚙️ Workflow
+# Workflow
 
 1. EnergyPlus starts the simulation.
 2. Live sensor data is collected.
@@ -218,7 +216,7 @@ Eco-Loop-HVAC
 
 ---
 
-# 🧠 Technologies
+# Technologies
 
 ### Programming
 
@@ -251,7 +249,7 @@ Eco-Loop-HVAC
 
 ---
 
-# 📈 Evaluation Highlights
+# Evaluation Highlights
 
 | SIH Criterion | Implementation |
 |---------------|----------------|
@@ -263,7 +261,7 @@ Eco-Loop-HVAC
 
 ---
 
-# ⚙️ Configuration
+# Configuration
 
 Project settings are configured through `.env`.
 
@@ -280,7 +278,7 @@ See `.env.example` for details.
 
 ---
 
-# 📄 Documentation
+# Documentation
 
 Additional documentation is available in:
 
@@ -290,20 +288,17 @@ docs/ARCHITECTURE.md
 
 ---
 
-# 🔮 Future Work
+# Future Work
 
-- Real Building Management System (BMS) integration
+- Integration with real Building Management Systems (BMS)
 - Dynamic electricity pricing optimization
 - Renewable energy scheduling
-- Reinforcement Learning controllers
+- Reinforcement Learning-based HVAC control
 - Edge deployment
 - Digital Twin integration
 
 ---
 
-# 📜 License
+# License
 
 This project is licensed under the MIT License.
-
----
-
