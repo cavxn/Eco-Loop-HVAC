@@ -307,8 +307,3 @@ This project is licensed under the MIT License.
 
 ---
 
-## 👨‍💻 Team
-
-**Eco-Loop Building Agents**
-
-Developed as a Physical AI proof-of-concept for **Smart India Hackathon (SIH) 2026**.
