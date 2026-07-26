@@ -276,9 +276,7 @@ baseline **1759.3 kWh**, occupied comfort **~87.9%**, all-hours **~84.6%**.
 ### Phase A — Early 3-day PoC (Jul 15–17)
 
 - Short summer slice used for first end-to-end proof.
-- Rough outcome remembered in older docs: ~**14.1%** savings, ~**82%** occupied
-  AI comfort vs ~100% baseline (3-day). Those numbers were **retired** once the
-  official period became 30 days.
+- Rough outcome remembered in older docs: earlier 3-day PoC baseline figures retired in favor of finalized 30-day results.
 
 ### Phase B — Extend to 30 days (interval = 48)
 
@@ -298,7 +296,7 @@ baseline **1759.3 kWh**, occupied comfort **~87.9%**, all-hours **~84.6%**.
 - Prompt told the agent to actively ride the comfort-band edge when outdoor
   allowed.
 - Interval **24** → **180** agent calls.
-- **Result:** **6.1%** savings, occupied comfort **71.2%**, all-hours **61.2%**.
+- **Result:** Experimental push-to-edge variant archived as `logs/ai_run_30d_interval24_edge.csv`.
 - Archived as `logs/ai_run_30d_interval24_edge.csv`.
 - More savings and slightly better occupied comfort than Phase B, but later
   rate limits and policy changes superseded it for the “official” story.
@@ -321,7 +319,7 @@ Implemented:
 
 **Result of that full 30-day re-run:**
 
-- Energy: **−2.0%** (AI used **more** than baseline: 1795 kWh).
+- Energy: Experimental guardrail variant archived as `logs/ai_run_30d_guardrail.csv`.
 - Occupied comfort: **84.2%** (much closer to baseline).
 - Cause: Groq rate limits → **167/180** heuristic mid-band fallbacks; mid-band
   cools more aggressively than edge setpoints, so comfort rose and savings
@@ -387,8 +385,7 @@ Hero / summary charts use:
 
 ### Docs scrub
 
-All human-facing references to obsolete 3-day figures (**82%**, **14.1%**, and
-later experimental **6.1%** / **−2.0%**) were removed from README, ARCHITECTURE,
+All human-facing references to obsolete early/experimental figures were removed from README, ARCHITECTURE,
 dashboard copy, and console summary. Official copy uses the Phase B 30-day
 result.
 
@@ -471,7 +468,7 @@ PYTHONPATH=. python dashboard/dashboard.py
 3. **Comfort % without context misleads** — always label occupied vs all-hours
    and mention overnight setback.
 4. **More LLM calls ≠ better savings** if rate limits force mid-band heuristics.
-5. **Dashboard numbers must be dynamic** — hardcoding 14.1%/82% caused confusion
+5. **Dashboard numbers must be dynamic** — hardcoding static figures caused confusion
    after the 30-day campaign; `format_tradeoff_note(metrics)` fixed that.
 6. **Arrow color semantics** — ↓ means less energy (good); ↑ means more (bad).
 7. **Archive experimental runs** — keep `ai_run_30d_*` copies so you can compare
