@@ -21,17 +21,21 @@ if str(_ROOT) not in sys.path:
 
 from src import config
 
-# Prefer a clean sans for static charts (falls back silently if missing).
+# Modern Dark / Slate aesthetic for static export figures.
 plt.rcParams.update(
     {
         "font.family": "sans-serif",
-        "font.sans-serif": ["DejaVu Sans", "Avenir Next", "Helvetica Neue", "Arial"],
+        "font.sans-serif": ["Inter", "Outfit", "DejaVu Sans", "Helvetica Neue", "Arial"],
         "axes.titlesize": 12,
         "axes.labelsize": 10,
-        "figure.facecolor": "#f4f7f5",
-        "axes.facecolor": "#fbfcfb",
-        "axes.edgecolor": "#c5d0ca",
-        "grid.color": "#d7e0db",
+        "figure.facecolor": "#0B1320",
+        "axes.facecolor": "#111C2D",
+        "axes.edgecolor": "#1E293B",
+        "grid.color": "#1E293B",
+        "text.color": "#E2E8F0",
+        "axes.labelcolor": "#94A3B8",
+        "xtick.color": "#94A3B8",
+        "ytick.color": "#94A3B8",
     }
 )
 
@@ -158,35 +162,39 @@ def render_charts(
 
     # --- (a) Cumulative energy ---
     fig, ax = plt.subplots(figsize=(10, 4.2))
-    ax.plot(b["step"], b["cumulative_kwh"], label="Baseline", color="#1a365d", lw=2.0)
-    ax.plot(a["step"], a["cumulative_kwh"], label="AI", color="#0d9488", lw=2.0)
-    ax.set_title("Facility HVAC electricity — baseline vs AI")
+    ax.plot(b["step"], b["cumulative_kwh"], label="Baseline", color="#64748B", lw=2.0)
+    ax.plot(a["step"], a["cumulative_kwh"], label="AI Agent", color="#10B981", lw=2.0)
+    ax.set_title("Facility HVAC Electricity — Baseline vs AI", fontweight="bold", color="#F8FAFC")
     ax.set_xlabel("Timestep")
     ax.set_ylabel("Cumulative kWh")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
+    legend = ax.legend(facecolor="#1E293B", edgecolor="#334155")
+    for text in legend.get_texts():
+        text.set_color("#E2E8F0")
+    ax.grid(True, alpha=0.15)
     p = out_dir / "energy_cumulative.png"
     fig.tight_layout()
-    fig.savefig(p, dpi=140)
+    fig.savefig(p, dpi=140, facecolor=fig.get_facecolor(), edgecolor="none")
     plt.close(fig)
     paths.append(p)
 
     # --- (b) Zone temperature with comfort band ---
     fig, ax = plt.subplots(figsize=(10, 4.2))
     lo, hi = metrics["comfort_lo"], metrics["comfort_hi"]
-    ax.axhspan(lo, hi, color="#99f6e4", alpha=0.35, label="Comfort band")
-    ax.plot(b["step"], b["zone_temp_c"], label="Baseline zone", color="#1a365d", lw=1.4)
-    ax.plot(a["step"], a["zone_temp_c"], label="AI zone", color="#0d9488", lw=1.4)
+    ax.axhspan(lo, hi, color="#06B6D4", alpha=0.15, label="Comfort band")
+    ax.plot(b["step"], b["zone_temp_c"], label="Baseline zone", color="#64748B", lw=1.4)
+    ax.plot(a["step"], a["zone_temp_c"], label="AI zone", color="#10B981", lw=1.4)
     if "outdoor_temp_c" in a.columns:
-        ax.plot(a["step"], a["outdoor_temp_c"], label="Outdoor", color="#b45309", lw=1.0, alpha=0.75)
-    ax.set_title("Zone air temperature — comfort band shaded")
+        ax.plot(a["step"], a["outdoor_temp_c"], label="Outdoor", color="#F59E0B", lw=1.0, alpha=0.75)
+    ax.set_title("Zone Air Temperature — Comfort Band Shaded", fontweight="bold", color="#F8FAFC")
     ax.set_xlabel("Timestep")
     ax.set_ylabel("°C")
-    ax.legend(ncol=2, fontsize=8)
-    ax.grid(True, alpha=0.3)
+    legend = ax.legend(ncol=3, fontsize=8, facecolor="#1E293B", edgecolor="#334155")
+    for text in legend.get_texts():
+        text.set_color("#E2E8F0")
+    ax.grid(True, alpha=0.15)
     p = out_dir / "zone_temperature.png"
     fig.tight_layout()
-    fig.savefig(p, dpi=140)
+    fig.savefig(p, dpi=140, facecolor=fig.get_facecolor(), edgecolor="none")
     plt.close(fig)
     paths.append(p)
 
@@ -194,20 +202,21 @@ def render_charts(
     fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(10, 4.0))
     saved = metrics["savings_pct"] >= 0
     bars = ax0.bar(
-        ["Baseline", "AI"],
+        ["Baseline", "AI Agent"],
         [metrics["baseline_kwh"], metrics["ai_kwh"]],
-        color=["#334155", "#0d9488" if saved else "#dc2626"],
+        color=["#475569", "#10B981" if saved else "#EF4444"],
     )
     ax0.set_ylabel("Total kWh")
-    ax0.set_title("Total facility electricity")
+    ax0.set_title("Total Facility Electricity", fontweight="bold", color="#F8FAFC")
     for bar, val in zip(bars, [metrics["baseline_kwh"], metrics["ai_kwh"]]):
         ax0.text(
             bar.get_x() + bar.get_width() / 2,
-            bar.get_height(),
-            f"{val:.1f}",
+            bar.get_height() + 10,
+            f"{val:.1f} kWh",
             ha="center",
             va="bottom",
             fontsize=9,
+            color="#E2E8F0",
         )
 
     pct = float(metrics["savings_pct"])
@@ -217,42 +226,44 @@ def render_charts(
     ax1.bar(
         ["Energy Δ"],
         [pct],
-        color="#0d9488" if pct >= 0 else "#dc2626",
+        color="#10B981" if pct >= 0 else "#EF4444",
     )
-    ax1.axhline(0, color="#64748b", lw=0.8)
-    ax1.set_ylabel("% energy saved vs baseline")
+    ax1.axhline(0, color="#475569", lw=0.8)
+    ax1.set_ylabel("% Energy Saved vs Baseline")
     ax1.set_title(
-        f"{'↓' if pct >= 0 else '↑'} {abs(pct):.1f}% energy "
-        f"{'saved' if pct >= 0 else 'increase'}"
+        f"{'↓' if pct >= 0 else '↑'} {abs(pct):.1f}% Energy "
+        f"{'Saved' if pct >= 0 else 'Increase'}",
+        fontweight="bold",
+        color="#10B981" if pct >= 0 else "#EF4444",
     )
     ax1.text(
         0.5,
-        0.02,
-        f"Occupied comfort (07–19h): {occ_pct:.1f}% within "
+        0.04,
+        f"Occupied Comfort (07–19h): {occ_pct:.1f}% within "
         f"{metrics['comfort_lo']:.0f}–{metrics['comfort_hi']:.0f}°C",
         transform=ax1.transAxes,
         ha="center",
         va="bottom",
         fontsize=8,
-        color="#475569",
+        color="#94A3B8",
     )
     ax1.set_ylim(min(-5, pct - 5), max(25, pct + 10))
-    ax1.grid(True, axis="y", alpha=0.3)
+    ax1.grid(True, axis="y", alpha=0.15)
 
     p = out_dir / "savings_summary.png"
     fig.tight_layout()
-    fig.savefig(p, dpi=140)
+    fig.savefig(p, dpi=140, facecolor=fig.get_facecolor(), edgecolor="none")
     plt.close(fig)
     paths.append(p)
 
     # Dedicated hero figure
     fig_h, ax_h = plt.subplots(figsize=(10, 4.8))
     ax_h.axis("off")
-    ax_h.set_title("PoC results — AI vs baseline (30-day)", fontsize=14, fontweight="bold", pad=12)
+    ax_h.set_title("PoC Results — AI vs Baseline (30-Day)", fontsize=14, fontweight="bold", color="#F8FAFC", pad=12)
     base_occ = float(
         (metrics.get("baseline_comfort_occupied") or {}).get("pct_in_band", 0.0)
     )
-    energy_color = "#0f766e" if saved else "#b91c1c"
+    energy_color = "#10B981" if saved else "#EF4444"
     ax_h.text(
         0.25,
         0.64,
@@ -282,7 +293,7 @@ def render_charts(
         va="center",
         fontsize=40,
         fontweight="bold",
-        color="#0369a1",
+        color="#38BDF8",
     )
     ax_h.text(
         0.75,
@@ -293,7 +304,7 @@ def render_charts(
         ha="center",
         va="center",
         fontsize=11,
-        color="#0369a1",
+        color="#38BDF8",
     )
     ax_h.text(
         0.5,
@@ -302,31 +313,33 @@ def render_charts(
         ha="center",
         va="bottom",
         fontsize=8.0,
-        color="#334155",
+        color="#CBD5E1",
         wrap=True,
-        bbox=dict(boxstyle="round,pad=0.45", facecolor="#f1f5f9", edgecolor="#cbd5e1"),
+        bbox=dict(boxstyle="round,pad=0.55", facecolor="#1E293B", edgecolor="#334155"),
     )
     p_hero = out_dir / "results_hero.png"
     fig_h.tight_layout()
-    fig_h.savefig(p_hero, dpi=140)
+    fig_h.savefig(p_hero, dpi=140, facecolor=fig_h.get_facecolor(), edgecolor="none")
     plt.close(fig_h)
     paths.append(p_hero)
 
     zone_cols = [c for c in a.columns if c.startswith("zone_temp_") and c != "zone_temp_c"]
     if zone_cols:
         fig, ax = plt.subplots(figsize=(10, 4.5))
-        ax.axhspan(lo, hi, color="#99f6e4", alpha=0.35)
+        ax.axhspan(lo, hi, color="#06B6D4", alpha=0.15)
         for col in zone_cols:
             label = col.replace("zone_temp_", "")
             ax.plot(a["step"], a[col], lw=1.2, label=label)
-        ax.set_title("AI run — all zone temperatures")
+        ax.set_title("AI Run — All Zone Temperatures", fontweight="bold", color="#F8FAFC")
         ax.set_xlabel("Timestep")
         ax.set_ylabel("°C")
-        ax.legend(ncol=3, fontsize=8)
-        ax.grid(True, alpha=0.3)
+        legend = ax.legend(ncol=3, fontsize=8, facecolor="#1E293B", edgecolor="#334155")
+        for text in legend.get_texts():
+            text.set_color("#E2E8F0")
+        ax.grid(True, alpha=0.15)
         p = out_dir / "multizone_temps.png"
         fig.tight_layout()
-        fig.savefig(p, dpi=140)
+        fig.savefig(p, dpi=140, facecolor=fig.get_facecolor(), edgecolor="none")
         plt.close(fig)
         paths.append(p)
 
